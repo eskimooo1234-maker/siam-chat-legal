@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เปิดใน Siam Chat</title>
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Siam Chat — รู้เรื่องแถวบ้าน ก่อนใคร">
+<meta property="og:description" content="Siam Chat — รู้เรื่องแถวบ้าน ก่อนใคร">
+<meta property="og:type" content="website">
+<meta name="description" content="Siam Chat — รู้เรื่องแถวบ้าน ก่อนใคร">
+<style>
+  :root {
+    --bg: #ffffff; --text: #111827; --text-secondary: #6b7280;
+    --border: #e5e7eb; --accent: #2563eb; --surface: #f9fafb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f172a; --text: #f1f5f9; --text-secondary: #94a3b8;
+      --border: #334155; --accent: #60a5fa; --surface: #1e293b;
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 24px 16px;
+  }
+  .container { max-width: 420px; width: 100%; text-align: center; }
+  .badge {
+    display: inline-block; background: var(--accent); color: #fff;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+    padding: 4px 12px; border-radius: 4px; margin-bottom: 16px;
+  }
+  h1 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .tagline { font-size: 15px; color: var(--text-secondary); margin-bottom: 28px; }
+  .target {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 24px;
+  }
+  .target-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .target-name { font-size: 17px; font-weight: 700; word-break: break-word; }
+  .btn {
+    display: block; width: 100%; text-align: center; text-decoration: none;
+    font-size: 17px; font-weight: 700; padding: 16px; border-radius: 12px; margin-bottom: 12px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-secondary { background: var(--surface); color: var(--accent); border: 1px solid var(--border); font-size: 15px; padding: 13px; }
+  .hint { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; margin-top: 16px; }
+  .error { color: #dc2626; font-size: 14px; margin-bottom: 20px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="badge">SIAM CHAT</div>
+  <h1>Siam Chat</h1>
+  <p class="tagline">รู้เรื่องแถวบ้าน ก่อนใคร</p>
+
+  <div class="target" id="target" hidden>
+    <div class="target-label" id="target-label"></div>
+    <div class="target-name" id="target-name"></div>
+  </div>
+  <p class="error" id="bad" hidden>ลิงก์นี้ไม่ถูกต้อง</p>
+
+  <a class="btn btn-primary" id="open" href="#" hidden>เปิดใน Siam Chat</a>
+  <a class="btn btn-secondary" href="https://play.google.com/apps/testing/com.siamchat.app">เข้าร่วมทดสอบ / ดาวน์โหลด</a>
+
+  <p class="hint">ถ้าเปิดจาก LINE แล้วไม่ไปที่แอป ให้กด ⋯ แล้วเลือก "เปิดในเบราว์เซอร์"</p>
+</div>
+<script>
+(function () {
+  var SCHEME = 'siamchat';
+  var PACKAGE = 'com.siamchat.app';
+  var TEST_URL = 'https://play.google.com/apps/testing/com.siamchat.app';
+  var UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  var LABELS = { place: 'หมุดสถานที่', alert: 'แจ้งเหตุ' };
+
+  var q = new URLSearchParams(location.search);
+  var type = q.get('type');
+  var id = q.get('id');
+  var name = q.get('t') || '';
+
+  var openBtn = document.getElementById('open');
+  var valid = (type === 'place' || type === 'alert') && id && UUID.test(id);
+  if (!valid) {
+    document.getElementById('bad').hidden = false;
+    return;
+  }
+
+  // textContent เท่านั้น (ห้าม innerHTML) — ชื่อมาจาก URL ไม่เชื่อถือ
+  document.getElementById('target-label').textContent = LABELS[type];
+  document.getElementById('target-name').textContent = name.slice(0, 120);
+  document.getElementById('target').hidden = !name;
+
+  var ua = navigator.userAgent || '';
+  var isAndroid = /Android/i.test(ua);
+  var path = type + '/' + id.toLowerCase();
+  if (isAndroid) {
+    openBtn.href = 'intent://' + path + '#Intent;scheme=' + SCHEME + ';package=' + PACKAGE +
+      ';S.browser_fallback_url=' + encodeURIComponent(TEST_URL) + ';end';
+  } else {
+    openBtn.href = SCHEME + '://' + path;
+  }
+  openBtn.hidden = false;
+})();
+</script>
+</body>
+</html>
